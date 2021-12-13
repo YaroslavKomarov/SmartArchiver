@@ -11,6 +11,7 @@ namespace Archiver.Domain.Models
         public byte[] CompressData(byte[] byteArray)
         {
 
+            throw new NotImplementedException();
         }
 
         public byte[] DecompressData(byte[] byteArray)

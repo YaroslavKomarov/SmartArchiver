@@ -1,0 +1,12 @@
+C:\Users\Yarik\source\repos\Archiver\Archiver\obj\Debug\Archiver.csproj.AssemblyReference.cache
+C:\Users\Yarik\source\repos\Archiver\Archiver\obj\Debug\Archiver.Properties.Resources.resources
+C:\Users\Yarik\source\repos\Archiver\Archiver\obj\Debug\Archiver.csproj.GenerateResource.cache
+C:\Users\Yarik\source\repos\Archiver\Archiver\obj\Debug\Archiver.csproj.CoreCompileInputs.cache
+C:\Users\Yarik\source\repos\Archiver\Archiver\bin\Debug\Archiver.exe.config
+C:\Users\Yarik\source\repos\Archiver\Archiver\bin\Debug\Archiver.exe
+C:\Users\Yarik\source\repos\Archiver\Archiver\bin\Debug\Archiver.pdb
+C:\Users\Yarik\source\repos\Archiver\Archiver\bin\Debug\Ninject.dll
+C:\Users\Yarik\source\repos\Archiver\Archiver\bin\Debug\Ninject.xml
+C:\Users\Yarik\source\repos\Archiver\Archiver\obj\Debug\Archiver.csproj.CopyComplete
+C:\Users\Yarik\source\repos\Archiver\Archiver\obj\Debug\Archiver.exe
+C:\Users\Yarik\source\repos\Archiver\Archiver\obj\Debug\Archiver.pdb
