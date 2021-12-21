@@ -8,13 +8,27 @@ namespace Archiver.Domain.Models.File
 {
     public class FileHeader
     {
-        public AlgorithmName AlgorithmName { get; private set; }
-        public string InitFormatName { get; private set; }
 
-        public FileHeader(AlgorithmName algName, string formatName)
+        public int HeaderLength
         {
-            AlgorithmName = algName;
-            InitFormatName = formatName;
+            get => typeof(FileHeader)
+                .GetFields(System.Reflection.BindingFlags.NonPublic)
+                .Where(f => f.FieldType == typeof(HeaderField))
+                .Select(f => ((HeaderField)f.GetValue(this)).FieldLength)
+                .Sum();
         }
+
+        public FileHeader(string initFormatName)
+        {
+            this.initFormatName = new HeaderField(initFormatName);
+        }
+
+        public static FileHeader TryCreateFileHeaderFromByteArray(byte[] headerBytes)
+        {
+
+        }
+
+        private HeaderField initFormatName;
+
     }
 }

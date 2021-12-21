@@ -49,12 +49,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Application\ApplicationHandler.cs" />
+    <Compile Include="Application\ApplicationLayer.cs" />
     <Compile Include="Domain\Interfaces\IFile.cs" />
     <Compile Include="Domain\Interfaces\IArchiverBase.cs" />
     <Compile Include="Domain\Models\File\AlgorithmName.cs" />
     <Compile Include="Domain\Models\File\FileSmart.cs" />
     <Compile Include="Domain\Models\File\FileHeader.cs" />
+    <Compile Include="Domain\Models\File\HeaderField.cs" />
     <Compile Include="Domain\Models\Haffman\Tree.cs" />
     <Compile Include="Domain\Models\Lzw\LzwArchiver.cs" />
     <Compile Include="Domain\Models\Haffman\HaffmanArchiver.cs" />

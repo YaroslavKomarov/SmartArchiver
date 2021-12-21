@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Archiver.Domain.Models.File;
 
 namespace Archiver.Domain.Models
 {
@@ -13,7 +14,7 @@ namespace Archiver.Domain.Models
             throw new NotImplementedException();
         }
 
-        public byte[] DecompressData(byte[] byteArray)
+        public byte[] DecompressData(FileSmart fileSmart)
         {
             throw new NotImplementedException();
         }
