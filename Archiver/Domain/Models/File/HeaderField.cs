@@ -8,15 +8,13 @@ namespace Archiver.Domain.Models.File
 {
     public class HeaderField
     {
-        public string FieldValue { get; private set; }
-        public int FieldLength
-        {
-            get => FieldValue.Length;
-        }
+        public readonly string FieldValue;
+        public readonly long FieldSize;
 
-        public HeaderField(string value)
+        public HeaderField(string value, long size)
         {
             FieldValue = value;
+            FieldSize = size;
         }
     }
 }
