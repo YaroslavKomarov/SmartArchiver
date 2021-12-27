@@ -10,5 +10,6 @@ namespace Archiver.Domain.Models.File
     {
         LZW, 
         Haffman,
+        Unknown,
     }
 }

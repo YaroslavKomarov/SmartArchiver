@@ -23,14 +23,14 @@ namespace Archiver.Application
                 .Select(t => (IArchiverBase)Activator.CreateInstance(t));
         }
 
-        public void Compress(AlgorithmName algName, string pathFrom, string pathTo)
+        public void Compress(string algName, string pathFrom, string pathTo)
         {
             //Прочитываем все байты FileHandler'ом
             //Передаем эти байты методы CompressData()
             //Создаем объект класса FileSmart и вызываем у него
             try
             {
-                var byteArray = FileHandler.TryReadAllBytes(pathFrom);
+                var byteArray = FileHandler.TryReadAllBytes(pathFrom); // Читать данные из потока порциями и собирать в byte[], имеет ли вообще смысл?
                 var rightImplementation = FindRightImplementation(algName);
                 var compressedData = rightImplementation.CompressData(byteArray);
                 var header = new FileHeader(FileHandler.GetFileFormatFromPath(pathFrom));
@@ -42,13 +42,14 @@ namespace Archiver.Application
             }
         }
 
-        public void Decompress(AlgorithmName algName, string pathFrom, string pathTo)
+        public void Decompress(string pathFrom, string pathTo)
         {
             try
             {
+                var fileExtension = FileHandler.GetFileFormatFromPath(pathFrom);
                 var byteArray = FileHandler.TryReadAllBytes(pathFrom);
                 var fileSmart = new FileSmart(byteArray);
-                var rightImplementation = FindRightImplementation(algName);
+                var rightImplementation = FindRightImplementation(fileExtension);//превратить fileExtension в название реализации перед вызовом метода FindRightImplementation
                 FileHandler.TryWriteAllBytes(rightImplementation.DecompressData(fileSmart), pathTo);
             }
             catch
@@ -57,10 +58,10 @@ namespace Archiver.Application
             }
         }
 
-        private IArchiverBase FindRightImplementation(AlgorithmName algName)
+        private IArchiverBase FindRightImplementation(string algName)
         {
             return archivingAlgorithms
-                .FirstOrDefault(r => r.GetType().Name == algName.ToString());
+                .FirstOrDefault(r => r.GetType().Name == algName);
         }
     }
 }
