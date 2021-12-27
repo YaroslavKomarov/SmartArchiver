@@ -11,11 +11,15 @@ namespace Archiver.Domain.Models
     {
         public byte[] CompressData(byte[] byteArray)
         {
-
             throw new NotImplementedException();
         }
 
         public byte[] DecompressData(FileSmart fileSmart)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetArchiverExtension()
         {
             throw new NotImplementedException();
         }
