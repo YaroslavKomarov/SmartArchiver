@@ -20,6 +20,7 @@ namespace Archiver.Domain.Models.Haffman
         private StringBuilder content;
         private List<Tuple<int, string>> codeList;
         private Dictionary<string, char> decompressedDict;
+        private Encoding encoding = Encoding.ASCII;
 
         public HaffmanArchiver()
         {
@@ -27,7 +28,7 @@ namespace Archiver.Domain.Models.Haffman
             codeList = new List<Tuple<int, string>>();
         }
 
-        public byte[] CompressData(byte[] bytes)
+        public Tuple<byte[], Dictionary<string, byte[]>> CompressData(byte[] bytes)
         {
             var frequencyDict = new Dictionary<char, int>();
 
@@ -42,13 +43,13 @@ namespace Archiver.Domain.Models.Haffman
             }
 
             BypassTree(MakeTree(frequencyDict), "");
-            return CreateCompressedFile(GetCodes(frequencyDict));
+            return Tuple.Create(CreateCompressedFile(GetCodes(frequencyDict)), GetReformatedDecodedDictionary());
         }
 
         public byte[] DecompressData(FileSmart fileSmart)
         {
             var decompressedBytes = new List<byte>();
-            decompressedDict = fileSmart.codeDictionary;
+            decompressedDict = ReformatedReceivedDictionary(fileSmart.codeDictionary);
             var code = "";
             foreach (var b in fileSmart.compressedData)
             {
@@ -136,6 +137,26 @@ namespace Archiver.Domain.Models.Haffman
                 codeList.Add(new Tuple<int, string>(root.Value, code));
 
             BypassTree(root.Right, code + "0");
+        }
+
+        private Dictionary<string, byte[]> GetReformatedDecodedDictionary()
+        {
+            var refDict = new Dictionary<string, byte[]>(decompressedDict.Count);
+            foreach(var pair in decompressedDict)
+            {
+                refDict.Add(pair.Key, encoding.GetBytes(pair.Value.ToString()));
+            }
+            return refDict;
+        }
+
+        private Dictionary<string, char> ReformatedReceivedDictionary(Dictionary<string, byte[]> recDict)
+        {
+            var decDict = new Dictionary<string, char>(recDict.Count);
+            foreach(var pair in recDict)
+            {
+                decDict.Add(pair.Key, char.Parse(encoding.GetString(pair.Value)));
+            }
+            return decDict;
         }
     }
 }

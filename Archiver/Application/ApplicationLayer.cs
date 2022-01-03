@@ -34,7 +34,7 @@ namespace Archiver.Application
                 var rightImplementation = FindRightImplementation(algName);
                 var compressedData = rightImplementation.CompressData(byteArray);
                 var header = new FileHeader(FileHandler.GetFileFormatFromPath(pathFrom));
-                new FileSmart(header, compressedData).WriteSmartFile(pathTo);
+                new FileSmart(header, compressedData.Item1).WriteSmartFile(pathTo);
             }
             catch
             {
