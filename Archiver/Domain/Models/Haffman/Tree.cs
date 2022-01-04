@@ -8,18 +8,18 @@ namespace Archiver.Domain.Models.Haffman
 {
     public class Tree
     {
-        public Tree LeftNode { get; private set; }
-        public Tree RightNode { get; private set; }
-        public byte Value { get; private set; }
+        public int Value { get; set; }
+        public Tree Left { get; set; }
+        public Tree Right { get; set; }
 
-        //public Tree(byte left, byte right)
-        //{
-        //    Value = left + right;
-        //    Left = new Tree(left);
-        //    Right = new Tree(right);
-        //}
+        public Tree(int left, int right)
+        {
+            Value = left + right;
+            Left = new Tree(left);
+            Right = new Tree(right);
+        }
 
-        public Tree(byte value)
+        public Tree(int value)
         {
             Value = value;
         }

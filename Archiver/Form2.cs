@@ -7,40 +7,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Archiver.Domain.Models.File;
 using Archiver.Application;
 
 namespace Archiver
 {
-    public partial class Form1 : Form
+    public partial class Form2 : Form
     {
-        private AlgorithmName AlgorithmName { get; set; }
         private string PathFrom { get; set; }
         private string PathTo { get; set; }
 
-        public Form1()
+        public Form2()
         {
             InitializeComponent();
         }
 
-        private void label1_Click(object sender, EventArgs e)
+        private void Form2_Load(object sender, EventArgs e)
         {
 
-        }
-
-        private void radioButton1_CheckedChanged(object sender, EventArgs e)
-        {
-            AlgorithmName = AlgorithmName.Haffman;
-        }
-
-        private void radioButton2_CheckedChanged(object sender, EventArgs e)
-        {
-            AlgorithmName = AlgorithmName.LZW;
-        }
-
-        private void radioButton3_CheckedChanged(object sender, EventArgs e)
-        {
-            AlgorithmName = AlgorithmName.Unknown;
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
@@ -66,7 +49,7 @@ namespace Archiver
         private void button1_Click(object sender, EventArgs e)
         {
             var appLayer = new ApplicationLayer();
-            appLayer.Compress(AlgorithmName.ToString(), PathFrom, PathTo);
+            appLayer.Decompress(PathFrom, PathTo);
         }
 
         private void button2_Click(object sender, EventArgs e)
