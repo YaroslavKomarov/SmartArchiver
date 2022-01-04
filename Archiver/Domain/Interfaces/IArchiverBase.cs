@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Archiver.Domain.Models.File;
 
-namespace Archiver.Domain
+namespace Archiver.Domain.Interfaces
 {
     public interface IArchiverBase
     {
-        byte[] CompressData(byte[] byteArray);
-        byte[] DecompressData(FileSmart fileSmart);
+        string AlgorithmExtension { get; }
+        Tuple<byte[], Dictionary<string, byte[]>> CompressData(byte[] byteArray);
+        byte[] DecompressData(byte[] compressedData, Dictionary<string, byte[]> dictionary);
     }
 }

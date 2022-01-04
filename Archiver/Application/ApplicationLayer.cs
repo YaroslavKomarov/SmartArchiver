@@ -1,66 +1,81 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Archiver.Domain;
-using System.Reflection;
 using Ninject;
+using Ninject.Extensions.Conventions;
 using Archiver.Domain.Models.File;
 using Archiver.Infrastructure;
+using Archiver.Domain.Interfaces;
+using System.IO;
 
 namespace Archiver.Application
 {
     public class ApplicationLayer
     {
-        private readonly IEnumerable<IArchiverBase> archivingAlgorithms;
         public ApplicationLayer()
         {
-            var type = typeof(IArchiverBase);
-            archivingAlgorithms = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(s => s.GetTypes())
-                .Where(p => type.IsAssignableFrom(p) && !p.IsClass)
-                .Select(t => (IArchiverBase)Activator.CreateInstance(t));
+            var kernel = new StandardKernel();
+            kernel.Bind(x =>
+                x.FromThisAssembly()
+                .SelectAllClasses()
+                .InheritedFrom<IArchiverBase>()
+                .BindAllInterfaces());
+
+            var archievers = kernel.GetAll<IArchiverBase>().ToList();
+
+            foreach (var e in archievers)
+            {
+                archivesDictionary.Add(e.GetType().Name, e);
+                algotihmsExtensionsDict.Add(e.AlgorithmExtension, e.GetType().Name);
+            }            
         }
 
-        public void Compress(AlgorithmName algName, string pathFrom, string pathTo)
+        public void Compress(string algName, string pathFrom, string pathTo)
         {
-            //Прочитываем все байты FileHandler'ом
-            //Передаем эти байты методы CompressData()
-            //Создаем объект класса FileSmart и вызываем у него
+            var fHandler = new FileHandler(pathFrom, pathTo);
             try
             {
-                var byteArray = FileHandler.TryReadAllBytes(pathFrom);
-                var rightImplementation = FindRightImplementation(algName);
-                var compressedData = rightImplementation.CompressData(byteArray);
-                var header = new FileHeader(FileHandler.GetFileFormatFromPath(pathFrom));
-                new FileSmart(header, compressedData).WriteSmartFile(pathTo);
+                var rightImplementation = archivesDictionary[algName];
+                foreach (var bytes in fHandler.TryReadAllBytesInPortions())
+                {
+                    var algExtension = rightImplementation.AlgorithmExtension;
+                    var initExtension = FileHandler.GetFileExtensionFromPath(pathFrom);
+                    var tuple = rightImplementation.CompressData(bytes);
+                    var accessoryData = ConverterToFormat.ConvertAccessoryDictToByteArray(tuple.Item2);
+                    new FileSmart(initExtension, algExtension, tuple.Item1, accessoryData).WriteSmartFile(fHandler);
+                }
             }
-            catch
+            catch (Exception ex)
             {
                 // текст ошибки будем пробрасывать в окно формы
             }
         }
 
-        public void Decompress(AlgorithmName algName, string pathFrom, string pathTo)
-        {
+        public void Decompress(string pathFrom, string pathTo)
+        { 
+            var fHandler = new FileHandler(pathFrom, pathTo);
             try
             {
-                var byteArray = FileHandler.TryReadAllBytes(pathFrom);
-                var fileSmart = new FileSmart(byteArray);
-                var rightImplementation = FindRightImplementation(algName);
-                FileHandler.TryWriteAllBytes(rightImplementation.DecompressData(fileSmart), pathTo);
+                fHandler.TryWriteBytesInPortions(DecompressedDataInPortions(fHandler));
             }
-            catch
+            catch (Exception ex)
             {
                 // текст ошибки будем пробрасывать в окно формы
             }
         }
 
-        private IArchiverBase FindRightImplementation(AlgorithmName algName)
+        private IEnumerable<byte[]> DecompressedDataInPortions(FileHandler fHandler)
         {
-            return archivingAlgorithms
-                .FirstOrDefault(r => r.GetType().Name == algName.ToString());
+            foreach (var bytes in fHandler.TryReadCompressedDataBytes(algotihmsExtensionsDict))
+            {
+                var fSmart = new FileSmart(bytes);
+                var rightImplementation = archivesDictionary[algotihmsExtensionsDict[fSmart.algExtension]];
+                var accessoryData = ConverterToFormat.ConvertAccessoryDataToDictionary(fSmart.accecoryData);
+                yield return rightImplementation.DecompressData(fSmart.compressedData, accessoryData);
+            }
         }
+
+        private Dictionary<string, IArchiverBase> archivesDictionary = new Dictionary<string, IArchiverBase>();
+        private Dictionary<string, string> algotihmsExtensionsDict = new Dictionary<string, string>();
     }
 }

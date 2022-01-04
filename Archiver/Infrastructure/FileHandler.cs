@@ -1,52 +1,93 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Archiver.Domain.Models.File;
 using System.IO;
 
 namespace Archiver.Infrastructure
 {
-    public static class FileHandler
+    public class FileHandler
     {
-        public static byte[] TryReadAllBytes(string path)
+        public static readonly int BufferSize = 10 * 1024 * 1024;
+
+        public FileHandler(string pathFrom, string pathTo)
         {
-            try
+            this.pathFrom = pathFrom;
+            this.pathTo = pathTo;
+        }
+
+        public void TryWriteBytesInPortions(IEnumerable<byte[]> allData)
+        {
+            using (var fs = new FileStream(pathFrom, FileMode.Create, FileAccess.Write))
+            using (var bs = new BufferedStream(fs, BufferSize))
             {
-                return ReadAllBytes(path);
-            }
-            catch
-            {
-                throw; // нужно протолкнуть ошибку на слой UI
+                foreach (var bytes in allData)
+                {
+                    var buffer = new byte[BufferSize];
+                    Array.Copy(bytes, buffer, bytes.Length);
+                    bs.Write(buffer, 0, bytes.Length);
+                }
             }
         }
 
-        public static void TryWriteAllBytes(byte[] bytes, string path)
-        {
-            try
+        public IEnumerable<byte[]> TryReadCompressedDataBytes(Dictionary<string, string> extensions)
+        {   
+            foreach (var path in Directory.GetFiles(pathFrom))
             {
-                WriteAllBytes(bytes, path);
-            }
-            catch
-            {
-                throw; // нужно протолкнуть ошибку на слой UI
+                ThrowExceptIfUnidentifiedExtension(path, extensions);
+                yield return File.ReadAllBytes(path);
             }
         }
 
-        public static string GetFileFormatFromPath(string path)
+        public IEnumerable<byte[]> TryReadAllBytesInPortions()
+        {
+            using (var fs = new FileStream(pathFrom, FileMode.Open, FileAccess.Read))
+            using (var bs = new BufferedStream(fs, BufferSize))
+            {
+                var buffer = new byte[BufferSize];
+                var offset = 0;
+                var readBytes = 0;
+                while ((readBytes = bs.Read(buffer, offset, BufferSize)) > 0)
+                {
+                    yield return buffer;
+                    offset += readBytes;
+                }
+            }
+        }
+
+        public void TryWriteAllBytes(byte[] bytes, string newExtension)
+        {
+            var compressedFileName = Path.GetFileNameWithoutExtension(pathFrom);
+            var pathToNewDirectory = GetPathToNewDirectory(compressedFileName);
+            var path = pathToNewDirectory + $"\\{compressedFileName}_{filesCount++}" + newExtension;
+
+            using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write))
+            using (var bs = new BufferedStream(fs, BufferSize))
+            {
+                var buffer = new byte[BufferSize];
+                Array.Copy(bytes, buffer, bytes.Length);
+                bs.Write(buffer, 0, bytes.Length);
+            }
+        }
+
+        public static string GetFileExtensionFromPath(string path)
         {
             return Path.GetExtension(path);
         }
 
-        private static byte[] ReadAllBytes(string path)
+        private void ThrowExceptIfUnidentifiedExtension(string path, Dictionary<string, string> extensions)
         {
-            return File.ReadAllBytes(path);
+            if (!extensions.ContainsKey(GetFileExtensionFromPath(path)))
+                throw new FileFormatException($"Неверное расширение файла: {path}");
         }
 
-        private static void WriteAllBytes(byte[] bytes, string path)
+        private string GetPathToNewDirectory(string compressedFileName)
         {
-            File.WriteAllBytes(path, bytes);
+            var pathToNewDirectory = pathTo + $"\\{compressedFileName}_Archive";
+            Directory.CreateDirectory(pathToNewDirectory);
+            return pathToNewDirectory;
         }
+
+        private readonly string pathFrom;
+        private readonly string pathTo;
+        private int filesCount;
     }
 }

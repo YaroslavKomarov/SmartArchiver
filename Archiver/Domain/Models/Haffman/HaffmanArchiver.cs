@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Archiver.Domain.Models.File;
+using Archiver.Domain.Interfaces;
 
 namespace Archiver.Domain.Models
 {
     public class HaffmanArchiver : IArchiverBase
     {
-        public byte[] CompressData(byte[] byteArray)
-        {
+        public string AlgorithmExtension => ".haf";
 
+        public byte[] DecompressData(byte[] compressedData, Dictionary<string, byte[]> dictionary)
+        {
             throw new NotImplementedException();
         }
 
-        public byte[] DecompressData(FileSmart fileSmart)
+        Tuple<byte[], Dictionary<string, byte[]>> IArchiverBase.CompressData(byte[] byteArray)
         {
             throw new NotImplementedException();
         }
